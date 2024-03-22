@@ -52,7 +52,7 @@ driver = webdriver.Chrome(options=opts)
 driver.get("https://tinder.com/app/recs")
 
 
-for j in range(200):
+for j in range(420):
     time.sleep(random.uniform(7, 13))
     buttons = driver.find_elements(By.CSS_SELECTOR, 'button.bullet[aria-label*="1 af"][aria-label*="tilgængelige billeder"]')
 
@@ -86,14 +86,27 @@ for j in range(200):
 
     # Initialize an empty set to store unique URLs
     unique_urls = set()
+    
+    # Initialize an empty set to store unique base URLs
+    unique_base_urls = set()
+
+    # Initialize an empty set to store unique original URLs
+    unique_original_urls = set()
+
 
     for i in range(total_images):
         # Perform space search and scrape images
         scraped_urls = space_search_and_scrape(driver)
-        
-        # Add scraped URLs to the set of unique URLs
-        unique_urls.update(scraped_urls[1:])
-        
+    
+        # Extract base URLs by removing query parameters
+        base_urls = [url.split('?')[0] for url in scraped_urls[1:]]
+    
+        # Add base URLs to the set of unique base URLs
+        unique_base_urls.update(base_urls)
+    
+        # Add original URLs to the set of unique original URLs
+        unique_original_urls.update(scraped_urls[1:])
+    
         # Update space search count for the next step
         if i < total_images - 1:
             space_search_count[i+1] += 1
@@ -120,15 +133,19 @@ for j in range(200):
 
     # Read the existing URLs from the file
     with open('urls.txt', 'r') as f:
-        existing_urls = set(line.strip() for line in f)
+        existing_base_urls = set(line.split('?')[0].strip() for line in f)
 
     # Remove any URLs that are already in the file from unique_urls
-    unique_urls -= existing_urls
+    unique_base_urls -= existing_base_urls
+    
+    # Filter out the original URLs corresponding to the unique base URLs
+    new_urls = [url for url in unique_original_urls if url.split('?')[0] in unique_base_urls]
+
 
     # If there are any new unique URLs, write them to the file
-    if unique_urls:
+    if new_urls:
         # Join the URLs with the separator
-        url_string = separator.join(unique_urls)
+        url_string = separator.join(new_urls)
         url_string += "\n----------------\n"
         url_string = f"Navn: {name}\nAlder: {age}\n" + url_string
         # Open the file in append mode
