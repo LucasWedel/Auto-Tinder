@@ -29,8 +29,8 @@ def next_img():
     img_label.config(image=img_label.img)
 
 def positive(arg):
-    #global current
-    #rename(IMAGE_FOLDER+"/"+current, IMAGE_FOLDER+"/1_"+current)
+    global current
+    rename(IMAGE_FOLDER+"/"+current, IMAGE_FOLDER+"/1_"+current)
     next_img()
 
 def negative(arg):
@@ -40,14 +40,14 @@ def negative(arg):
 
 def bad(arg):
     global current
-    # Get the directory where the script is running
+    
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    # Create the path to the bad folder in the script directory
+    
     bad_folder = os.path.join(script_dir, 'bad')
-    # If the bad folder doesn't exist, create it
+    
     if not os.path.exists(bad_folder):
         os.makedirs(bad_folder)
-    # Move the image to the bad folder
+    
     os.rename(os.path.join(IMAGE_FOLDER, current), os.path.join(bad_folder, current))
     next_img()
     
@@ -63,6 +63,6 @@ if __name__ == "__main__":
 
     btn = tk.Button(root, text='Next image', command=next_img)
 
-    next_img() # load first image
+    next_img() 
 
     root.mainloop()
